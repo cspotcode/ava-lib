@@ -32,5 +32,8 @@ Every single `contextAll`:
 - if is registered on a serial suite
   - IMPOSSIBLE
   - cannot know when one test case ends if another will run
-  - our only hope is to postpone teardown till the end of the file, with a `.serial.after`
+  - our only hope is to postpone teardown till the end of the file, with a `.serial.after.always`
+    - we need to pass it a suitable `context`
+- can we trigger serial teardown in a beforeEach that detects when the first non-serial test runs?
+  - messy because *all* non-serial tests will need to wait for serial teardown to finish.  If it fails, do those tests swallow the failure?
 - DO NOT REGISTER TEARDOWN TESTCASE because testcases get skipped; break serial execution
