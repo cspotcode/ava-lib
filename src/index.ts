@@ -4,6 +4,9 @@
  * should go in a separate module.
  */
 
+import assert from 'assert';
+import throat from 'throat';
+import expect from 'expect';
 import avaTest, {
   ExecutionContext,
   Implementation,
@@ -13,9 +16,6 @@ import avaTest, {
   MacroFn,
   TestFn,
 } from 'ava';
-import assert from 'assert';
-import throat from 'throat';
-import {expect} from 'expect';
 
 export { ExecutionContext, expect };
 
