@@ -5,7 +5,8 @@
         "target": "ESNext",
         "module": "NodeNext",
         "sourceMap": true,
-        "declaration": true
+        "declaration": true,
+        "newLine": "lf"
     },
     "include": ["src"]
 }

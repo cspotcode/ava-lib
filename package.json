@@ -2,6 +2,11 @@
     "name": "@cspotcode/ava-lib",
     "version": "0.0.1",
     "main": "dist/index.js",
+    "license": "MIT",
+    "files": [
+        "dist",
+        "src"
+    ],
     "devDependencies": {
         "ava": "^5.2.0",
         "expect": "^29.4.2",
