@@ -15,7 +15,7 @@ import avaTest, {
 } from 'ava';
 import assert from 'assert';
 import throat from 'throat';
-import * as expect from 'expect';
+import expect from 'expect';
 
 export { ExecutionContext, expect };
 
