@@ -17,6 +17,9 @@ import avaTest, {
   TestFn,
 } from 'ava';
 
+// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1519138189
+export {Macro} from 'ava';
+
 export { ExecutionContext, expect };
 
 // NOTE: this limits concurrency within a single process, but AVA launches
