@@ -11,14 +11,11 @@ import avaTest, {
   ExecutionContext,
   Implementation,
   ImplementationFn,
-  Macro as AvaMacro,
+  Macro,
   MacroDeclarationOptions,
   MacroFn,
   TestFn,
-} from 'ava';
-
-// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1519138189
-export {AvaMacro as Macro};
+} from './ava';
 
 export { ExecutionContext, expect };
 
@@ -97,7 +94,7 @@ export interface TestInterface<
 
   macro<Args extends any[], Ctx = Context>(
     cb: (...args: Args) => [SimpleTitleFn | string, SimpleImplementationFn<Ctx>] | SimpleImplementationFn<Ctx>
-  ): AvaMacro<Args, Ctx>;
+  ): Macro<Args, Ctx>;
 
   avaMacro: MacroFn<Context>;
 
@@ -309,9 +306,9 @@ function createTestInterface<Context>(opts: {
   return test as any;
 }
 
-function isMacro(implementation?: Implementation<any, any>): implementation is AvaMacro<any> {
+function isMacro(implementation?: Implementation<any, any>): implementation is Macro<any> {
   return implementation != null && typeof implementation !== 'function';
 }
-function isMacroWithTitle(implementation?: Implementation<any, any>): implementation is AvaMacro<any> {
-  return !!(implementation && (implementation as AvaMacro<[]>)?.title);
+function isMacroWithTitle(implementation?: Implementation<any, any>): implementation is Macro<any> {
+  return !!(implementation && (implementation as Macro<[]>)?.title);
 }
