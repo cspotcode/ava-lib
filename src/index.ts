@@ -16,6 +16,7 @@ import avaTest, {
   MacroFn,
   TestFn,
 } from 'ava';
+import chalk from 'chalk';
 
 export { ExecutionContext, expect };
 
@@ -26,13 +27,29 @@ export type Macro<Args extends unknown[], Context = unknown> = AvaMacro<Args, Co
 // each .spec file in its own process, so actual concurrency is higher.
 const concurrencyLimiter = throat(parseInt(process.env.CONCURRENT_TESTS!) || 4);
 
-function errorPostprocessor<T extends Function>(fn: T): T {
+/**
+ * Improve readability of assertion failures.
+ *
+ * Catch errors thrown by tests, optionally transforming them before re-throwing
+ * or converting them into ava assertions.
+ */
+function errorPostprocessor<T extends Function>(t: ExecutionContext, fn: T): T {
   return async function (this: any) {
     try {
       return await fn.call(this, arguments);
     } catch (error: any) {
+      if (error?.matcherResult?.message) {
+        // Assume this is a jest expect() error, which provides nicely-formatted,
+        // colorized output.
+
+        // Grab first stack frame, include it in output.
+        // t.fail() grabs a frame within this file which is wrong, no good way around it.
+        const stack = error.stack.replace(/^[\S\s]+?\n +at (.+)(?:\n[\S\s]+)?$/, '$1');
+
+        t.fail(error.matcherResult.message + '\n\n' + chalk.grey('› ' + stack));
+        return;
+      }
       delete error?.matcherResult;
-      // delete error?.matcherResult?.message;
       if (error?.message) error.message = `\n${error.message}\n`;
       throw error;
     }
@@ -188,7 +205,7 @@ function createTestInterface<Context>(opts: {
   ) {
     const wrapped = async function (t: ExecutionContext<Context>, ...args: any[]) {
       return concurrencyLimiter(
-        errorPostprocessor(async () => {
+        errorPostprocessor(t, async () => {
           let i = 0;
           for (const func of beforeEachFunctions) {
             await func(t);
