@@ -26,13 +26,23 @@ export type Macro<Args extends unknown[], Context = unknown> = AvaMacro<Args, Co
 // each .spec file in its own process, so actual concurrency is higher.
 const concurrencyLimiter = throat(parseInt(process.env.CONCURRENT_TESTS!) || 4);
 
-function errorPostprocessor<T extends Function>(fn: T): T {
+/**
+ * Improve readability of assertion failures.
+ *
+ * Catch errors thrown by tests, optionally transforming them before re-throwing
+ * or converting them into ava assertions.
+ */
+function errorPostprocessor<T extends Function>(test: ExecutionContext, fn: T): T {
   return async function (this: any) {
     try {
       return await fn.call(this, arguments);
     } catch (error: any) {
+      if (error?.matcherResult?.message) {
+        // Assume this is a jest expect() error, which provides nicely-formatted,
+        // colorized output.
+        test.fail(error.matcherResult.message);
+      }
       delete error?.matcherResult;
-      // delete error?.matcherResult?.message;
       if (error?.message) error.message = `\n${error.message}\n`;
       throw error;
     }
@@ -188,7 +198,7 @@ function createTestInterface<Context>(opts: {
   ) {
     const wrapped = async function (t: ExecutionContext<Context>, ...args: any[]) {
       return concurrencyLimiter(
-        errorPostprocessor(async () => {
+        errorPostprocessor(t, async () => {
           let i = 0;
           for (const func of beforeEachFunctions) {
             await func(t);
