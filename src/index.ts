@@ -11,16 +11,16 @@ import avaTest, {
   ExecutionContext,
   Implementation,
   ImplementationFn,
-  Macro,
+  Macro as AvaMacro,
   MacroDeclarationOptions,
   MacroFn,
   TestFn,
 } from 'ava';
 
-// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1519138189
-export {Macro} from 'ava';
-
 export { ExecutionContext, expect };
+
+// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1519138189
+export type Macro<Args extends unknown[], Context = unknown> = AvaMacro<Args, Context>;
 
 // NOTE: this limits concurrency within a single process, but AVA launches
 // each .spec file in its own process, so actual concurrency is higher.
