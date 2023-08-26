@@ -44,9 +44,9 @@ function errorPostprocessor<T extends Function>(t: ExecutionContext, fn: T): T {
 
         // Grab first stack frame, include it in output.
         // t.fail() grabs a frame within this file which is wrong, no good way around it.
-        const stack = error.stack.replace(/^[\S\s]+?\n +at (.+\n)[\S\s]+$/, '$1');
+        const stack = error.stack.replace(/^[\S\s]+?\n +at (.+)(?:\n[\S\s]+)?$/, '$1');
 
-        t.fail(error.matcherResult.message + '\n\n› ' + chalk.grey(stack));
+        t.fail(error.matcherResult.message + '\n\n' + chalk.grey('› ' + stack));
         return;
       }
       delete error?.matcherResult;
