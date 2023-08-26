@@ -16,6 +16,7 @@ import avaTest, {
   MacroFn,
   TestFn,
 } from 'ava';
+import chalk from 'chalk';
 
 export { ExecutionContext, expect };
 
@@ -32,7 +33,7 @@ const concurrencyLimiter = throat(parseInt(process.env.CONCURRENT_TESTS!) || 4);
  * Catch errors thrown by tests, optionally transforming them before re-throwing
  * or converting them into ava assertions.
  */
-function errorPostprocessor<T extends Function>(test: ExecutionContext, fn: T): T {
+function errorPostprocessor<T extends Function>(t: ExecutionContext, fn: T): T {
   return async function (this: any) {
     try {
       return await fn.call(this, arguments);
@@ -40,7 +41,13 @@ function errorPostprocessor<T extends Function>(test: ExecutionContext, fn: T): 
       if (error?.matcherResult?.message) {
         // Assume this is a jest expect() error, which provides nicely-formatted,
         // colorized output.
-        test.fail(error.matcherResult.message);
+
+        // Grab first stack frame, include it in output.
+        // t.fail() grabs a frame within this file which is wrong, no good way around it.
+        const stack = error.stack.replace(/^[\S\s]+?\n +at (.+\n)[\S\s]+$/, '$1');
+
+        t.fail(error.matcherResult.message + '\n\n› ' + chalk.grey(stack));
+        return;
       }
       delete error?.matcherResult;
       if (error?.message) error.message = `\n${error.message}\n`;
